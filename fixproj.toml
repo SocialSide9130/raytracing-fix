@@ -1,0 +1,10 @@
+[general]
+name = "RayTracing-Fix"
+
+version = "0.1.0"
+
+fix_version = "*"
+
+[build]
+files = ["main.fix"]
+ld_flags = ["-lm"]
