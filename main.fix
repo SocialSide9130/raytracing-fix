@@ -1,0 +1,20 @@
+module Main;
+
+main : IO () = (
+    "P3".println;;
+    "256 256".println;;
+    "255".println;;
+    loop_m(255, |i| (
+        if i == -1 { break_m $ () };
+        loop_m(0, |j| (
+            if j == 256 { break_m $ () };
+            j.to_string.print;;
+            " ".print;;
+            i.to_string.print;;
+            " ".print;;
+            "63".println;;
+            continue_m $ j + 1
+        ));;
+        continue_m $ i - 1
+    ))
+);
