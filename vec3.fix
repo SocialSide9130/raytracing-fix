@@ -35,7 +35,7 @@ impl Vec3 : Eq {
 }
 
 impl Vec3 : Zero {
-    zero = Vec3 { x : 0, y : 0, z : 0 };
+    zero = Vec3 { x : 0.0, y : 0.0, z : 0.0 };
 }
 
 impl Color : ToString {
