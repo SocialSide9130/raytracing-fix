@@ -8,22 +8,22 @@ output_ppm : IO () = (
     let image_height = 256;
 
     "P3".println;;
-    "256 256".println;;
+    (image_width.to_string + " " + image_height.to_string).println;;
     "255".println;;
-    loop_m(image_height-1, |i : I64| (
-        if i < 0 {
+    loop_m(image_height-1, |y : I64| (
+        if y < 0 {
             break_m $ ()
         };
 
-        pure(debug_eprintln $ "Scanlines remaining: " + i.to_string);;
+        pure(debug_eprintln $ "Scanlines remaining: " + y.to_string);;
 
-        loop_m(0, |j : I64| (
-            if j >= 256 { break_m $ () };
-            let c : Color = Vec3 {x : j.to_F64 / (image_width - 1).to_F64, y : i.to_F64 / (image_height - 1).to_F64, z : 0.25};
+        loop_m(0, |x : I64| (
+            if x >= 256 { break_m $ () };
+            let c : Color = Vec3 {x : x.to_F64 / (image_width - 1).to_F64, y : y.to_F64 / (image_height - 1).to_F64, z : 0.25};
             println(c.to_string);;
-            continue_m $ j + 1
+            continue_m $ x + 1
         ));;
-        continue_m $ i - 1
+        continue_m $ y - 1
     ));;
 
     pure $ debug_eprintln("\nDone")
