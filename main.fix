@@ -1,23 +1,25 @@
 module Main;
 
+import Vec3;
+
 output_ppm : IO () = (
+    let image_width = 256;
+    let image_height = 256;
+
     "P3".println;;
     "256 256".println;;
     "255".println;;
-    loop_m(255, |i| (
-        if i == -1 {
+    loop_m(image_height-1, |i : I64| (
+        if i < 0 {
             break_m $ ()
         };
 
         pure(debug_eprintln $ "Scanlines remaining: " + i.to_string);;
 
-        loop_m(0, |j| (
-            if j == 256 { break_m $ () };
-            j.to_string.print;;
-            " ".print;;
-            i.to_string.print;;
-            " ".print;;
-            "63".println;;
+        loop_m(0, |j : I64| (
+            if j >= 256 { break_m $ () };
+            let c : Color = Vec3 {x : j.to_F64 / (image_width - 1).to_F64, y : i.to_F64 / (image_height - 1).to_F64, z : 0.25};
+            println(c.to_string);;
             continue_m $ j + 1
         ));;
         continue_m $ i - 1

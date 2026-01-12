@@ -1,6 +1,6 @@
 module Vec3;
 
-type Vec3 = Tuple3;
+type Vec3 = struct { x : F64, y : F64, z : F64 };
 
 type Color = Vec3;
 type Point3 = Vec3;
@@ -12,31 +12,31 @@ namespace F64 {
 
 impl Vec3 : Add {
     add = |v1, v2| (
-        Vec3 { v1.@0 + v2.@0, v1.@1 + v2.@1, v1.@2 + v2.@2 }
+        Vec3 { x : v1.@x + v2.@x, y : v1.@y + v2.@y, z : v1.@z + v2.@z }
     );
 }
 
 impl Vec3 : Sub {
     sub = |v1, v2| (
-        Vec3 { v1.@0 - v2.@0, v1.@1 - v2.@1, v1.@2 - v2.@2 }
+        Vec3 { x : v1.@x - v2.@x, y : v1.@y - v2.@y, z : v1.@z - v2.@z }
     );
 }
 
 impl Vec3 : Neg {
     neg = |v| (
-        Vec3 { -v.@0, -v.@1, -v.@2 }
+        Vec3 { x : -v.@x, y : -v.@y, z : -v.@z }
     );
 }
 
 impl Vec3 : Eq {
     eq = |v1, v2| (
-        v1.@0 == v2.@0 && v1.@1 == v2.@1 && v1.@2 == v2.@2
+        v1.@x == v2.@x && v1.@y == v2.@y && v1.@z == v2.@z
     );
 }
 
 impl Vec3 : Zero {
-    zero = Vec3 { 0, 0, 0 };
-};
+    zero = Vec3 { x : 0, y : 0, z : 0 };
+}
 
 impl Color : ToString {
     to_string = |v| (
@@ -46,26 +46,17 @@ impl Color : ToString {
 
 namespace Vec3 {
     red : Vec3 -> F64;
-    red = |v| v.@0;
+    red = |v| v.@x;
     
     green : Vec3 -> F64;
-    green = |v| v.@1;
+    green = |v| v.@y;
     
     blue : Vec3 -> F64;
-    blue = |v| v.@2;
-
-    x : Vec3 -> F64;
-    x = |v| v.@0;
-    
-    y : Vec3 -> F64;
-    y = |v| v.@1;
-    
-    z : Vec3 -> F64;
-    z = |v| v.@2;
+    blue = |v| v.@z;
 
     times : Vec3 -> F64 -> Vec3;
     times = |v, t| (
-        Vec3 { t * v.@0, t * v.@1, t * v.@2 };
+        Vec3 { x : t * v.@x, y : t * v.@y, z : t * v.@z }
     );
 
     div_by : F64 -> Vec3 -> Vec3;
@@ -75,15 +66,15 @@ namespace Vec3 {
 
     dot : Vec3 -> Vec3 -> F64;
     dot = |v1, v2| (
-        v1.@0 * v2.@0 + v1.@1 * v2.@1 + v1.@2 * v2.@2
+        v1.@x * v2.@x + v1.@y * v2.@y + v1.@z * v2.@z
     );
 
     cross : Vec3 -> Vec3 -> Vec3;
     cross = |v1, v2| (
         Vec3 {
-            v1.@1 * v2.@2 - v1.@2 * v2.@1,
-            v1.@2 * v2.@0 - v1.@0 * v2.@2,
-            v1.@0 * v2.@1 - v1.@1 * v2.@0
+            x : v1.@y * v2.@z - v1.@z * v2.@y,
+            y : v1.@z * v2.@x - v1.@x * v2.@z,
+            z : v1.@x * v2.@y - v1.@y * v2.@x
         }
     );
 
@@ -99,6 +90,6 @@ namespace Vec3 {
 
     unit : Vec3 -> Vec3;
     unit = |v| (
-        v.div_by(v.length);
+        v.div_by(v.length)
     );
 }
