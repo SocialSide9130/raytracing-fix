@@ -1,6 +1,7 @@
 module Main;
 
 import Vec3;
+import Ray;
 
 output_ppm : IO () = (
     let image_width = 256;

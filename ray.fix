@@ -1,0 +1,12 @@
+module Ray;
+
+import Vec3;
+
+type Ray = struct { origin : Point3, direction : Vec3 };
+
+namespace Ray {
+    at : F64 -> Ray -> Point3;
+    at = |t, ray| (
+        ray.@origin + t.times(ray.@direction)
+    );
+}
