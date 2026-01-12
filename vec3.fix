@@ -40,7 +40,7 @@ impl Vec3 : Zero {
 
 impl Color : ToString {
     to_string = |v| (
-        (255.99 * v.@0).to_I64.to_string + " " + (255.99 * v.@1).to_I64.to_string + " " + (255.99 * v.@2).to_I64.to_string
+        (255.99 * v.red).to_I64.to_string + " " + (255.99 * v.green).to_I64.to_string + " " + (255.99 * v.blue).to_I64.to_string
     );
 }
 
@@ -53,7 +53,16 @@ namespace Vec3 {
     
     blue : Vec3 -> F64;
     blue = |v| v.@2;
+
+    x : Vec3 -> F64;
+    x = |v| v.@0;
     
+    y : Vec3 -> F64;
+    y = |v| v.@1;
+    
+    z : Vec3 -> F64;
+    z = |v| v.@2;
+
     times : Vec3 -> F64 -> Vec3;
     times = |v, t| (
         Vec3 { t * v.@0, t * v.@1, t * v.@2 };
