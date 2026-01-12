@@ -1,6 +1,6 @@
 module Main;
 
-main : IO () = (
+output_ppm : IO () = (
     "P3".println;;
     "256 256".println;;
     "255".println;;
@@ -24,4 +24,8 @@ main : IO () = (
     ));;
 
     pure $ debug_eprintln("\nDone")
+);
+
+main : IO () = (
+    output_ppm
 );
