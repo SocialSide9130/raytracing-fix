@@ -1,1 +1,2 @@
-docker run --rm -it -v "$PWD":/work -w /work pt9999/fixlang fix run --backtrace -g -f main.fix -- "$@"
+docker run --rm -it -v "$PWD":/work -w /work pt9999/fixlang fix build -o main --backtrace -g -f main.fix
+./main
