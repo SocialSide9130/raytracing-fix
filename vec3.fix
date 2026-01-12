@@ -1,0 +1,95 @@
+module Vec3;
+
+type Vec3 = Tuple3;
+
+type Color = Vec3;
+type Point3 = Vec3;
+
+namespace F64 {
+    sqrt : F64 -> F64;
+    sqrt = |v| FFI_CALL[F64 sqrt(F64), v];
+}
+
+impl Vec3 : Add {
+    add = |v1, v2| (
+        Vec3 { v1.@0 + v2.@0, v1.@1 + v2.@1, v1.@2 + v2.@2 }
+    );
+}
+
+impl Vec3 : Sub {
+    sub = |v1, v2| (
+        Vec3 { v1.@0 - v2.@0, v1.@1 - v2.@1, v1.@2 - v2.@2 }
+    );
+}
+
+impl Vec3 : Neg {
+    neg = |v| (
+        Vec3 { -v.@0, -v.@1, -v.@2 }
+    );
+}
+
+impl Vec3 : Eq {
+    eq = |v1, v2| (
+        v1.@0 == v2.@0 && v1.@1 == v2.@1 && v1.@2 == v2.@2
+    );
+}
+
+impl Vec3 : Zero {
+    zero = Vec3 { 0, 0, 0 };
+};
+
+impl Color : ToString {
+    to_string = |v| (
+        (255.99 * v.@0).to_I64.to_string + " " + (255.99 * v.@1).to_I64.to_string + " " + (255.99 * v.@2).to_I64.to_string
+    );
+}
+
+namespace Vec3 {
+    red : Vec3 -> F64;
+    red = |v| v.@0;
+    
+    green : Vec3 -> F64;
+    green = |v| v.@1;
+    
+    blue : Vec3 -> F64;
+    blue = |v| v.@2;
+    
+    times : Vec3 -> F64 -> Vec3;
+    times = |v, t| (
+        Vec3 { t * v.@0, t * v.@1, t * v.@2 };
+    );
+
+    div_by : F64 -> Vec3 -> Vec3;
+    div_by = |t, v| (
+        (1/t).times(v)
+    );
+
+    dot : Vec3 -> Vec3 -> F64;
+    dot = |v1, v2| (
+        v1.@0 * v2.@0 + v1.@1 * v2.@1 + v1.@2 * v2.@2
+    );
+
+    cross : Vec3 -> Vec3 -> Vec3;
+    cross = |v1, v2| (
+        Vec3 {
+            v1.@1 * v2.@2 - v1.@2 * v2.@1,
+            v1.@2 * v2.@0 - v1.@0 * v2.@2,
+            v1.@0 * v2.@1 - v1.@1 * v2.@0
+        }
+    );
+
+    length : Vec3 -> F64;
+    length = |v| (
+        sqrt(v.squared_length)
+    );
+
+    squared_length : Vec3 -> F64;
+    squared_length = |v| (
+        v.dot(v)
+    );
+
+    unit : Vec3 -> Vec3;
+    unit = |v| (
+        v.div_by(v.length);
+    );
+}
