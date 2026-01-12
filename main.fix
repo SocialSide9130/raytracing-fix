@@ -3,13 +3,33 @@ module Main;
 import Vec3;
 import Ray;
 
+ray_color : Ray -> Color;
+ray_color = |ray| (
+    let unit_direction : Vec3 = ray.@direction.unit;
+    let t = 0.5 * (unit_direction.@y + 1.0);
+    let c : Color = Vec3 { x : 1.0, y : 1.0, z : 1.0 };
+    let x : Color = Vec3 { x : 0.5, y : 0.7, z : 1.0 };
+
+    (1.0 - t).times(c) + t.times(x)
+);
+
 output_ppm : IO () = (
-    let image_width = 256;
-    let image_height = 256;
+    let aspect_ratio : F64 = 16.0 / 9.0;
+    let image_width = 384;
+    let image_height = (image_width.to_F64 / aspect_ratio).to_I64;
 
     "P3".println;;
     (image_width.to_string + " " + image_height.to_string).println;;
     "255".println;;
+
+    let viewport_height : F64 = 2.0;
+    let viewport_width : F64 = aspect_ratio * viewport_height;
+    let focal_length : F64 = 1.0;
+
+    let origin : Point3 = zero;
+    let horizontal : Vec3 = Vec3 { x : viewport_width, y : 0.0, z : 0.0 };
+    let vertical : Vec3 = Vec3 { x : 0.0, y : viewport_height, z : 0.0 };
+    let lower_left_corner : Point3 = origin - horizontal.div_by(2.0) - vertical.div_by(2.0) - Vec3 { x : 0.0, y : 0.0, z : focal_length };
     loop_m(image_height-1, |y : I64| (
         if y < 0 {
             break_m $ ()
@@ -18,8 +38,14 @@ output_ppm : IO () = (
         pure(debug_eprintln $ "Scanlines remaining: " + y.to_string);;
 
         loop_m(0, |x : I64| (
-            if x >= 256 { break_m $ () };
-            let c : Color = Vec3 {x : x.to_F64 / (image_width - 1).to_F64, y : y.to_F64 / (image_height - 1).to_F64, z : 0.25};
+            if x >= image_width { break_m $ () };
+            
+            let u = x.to_F64 / (image_width - 1).to_F64;
+            let v = y.to_F64 / (image_height - 1).to_F64;
+
+            let r : Ray = Ray { origin : origin, direction : lower_left_corner + u.times(horizontal) + v.times(vertical) - origin };
+            let c : Color = r.ray_color;
+
             println(c.to_string);;
             continue_m $ x + 1
         ));;

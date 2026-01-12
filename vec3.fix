@@ -61,7 +61,7 @@ namespace Vec3 {
 
     div_by : F64 -> Vec3 -> Vec3;
     div_by = |t, v| (
-        (1/t).times(v)
+        (1.0/t).times(v)
     );
 
     dot : Vec3 -> Vec3 -> F64;
