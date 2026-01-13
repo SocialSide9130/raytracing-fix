@@ -18,10 +18,6 @@ output_ppm : IO () = (
     let image_width = 384;
     let image_height = (image_width.to_F64 / aspect_ratio).to_I64;
 
-    "P3".println;;
-    (image_width.to_string + " " + image_height.to_string).println;;
-    "255".println;;
-
     let viewport_height : F64 = 2.0;
     let viewport_width : F64 = aspect_ratio * viewport_height;
     let focal_length : F64 = 1.0;
@@ -30,6 +26,11 @@ output_ppm : IO () = (
     let horizontal : Vec3 = Vec3 { x : viewport_width, y : 0.0, z : 0.0 };
     let vertical : Vec3 = Vec3 { x : 0.0, y : viewport_height, z : 0.0 };
     let lower_left_corner : Point3 = origin - horizontal.div_by(2.0) - vertical.div_by(2.0) - Vec3 { x : 0.0, y : 0.0, z : focal_length };
+
+    "P3".println;;
+    (image_width.to_string + " " + image_height.to_string).println;;
+    "255".println;;
+
     loop_m(image_height-1, |y : I64| (
         if y < 0 {
             break_m $ ()
