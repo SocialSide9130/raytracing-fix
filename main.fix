@@ -3,8 +3,23 @@ module Main;
 import Vec3;
 import Ray;
 
+hit_sphere : Point3 -> F64 -> Ray -> Bool;
+hit_sphere = |center, radius, ray| (
+    let oc : Vec3 = ray.@origin - center;
+    let a = ray.@direction.dot(ray.@direction);
+    let b = 2.0 * ray.@direction.dot(oc);
+    let c = oc.dot(oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+
+    discriminant > 0.0
+);
+
 ray_color : Ray -> Color;
 ray_color = |ray| (
+    if (ray.hit_sphere(Vec3 {x : 0.0, y : 0.0, z : -1.0}, 0.5)) {
+        Vec3 { x : 1.0, y : 0.0, z : 0.0 }
+    };
+
     let unit_direction : Vec3 = ray.@direction.unit;
     let t = 0.5 * (unit_direction.@y + 1.0);
     let c : Color = Vec3 { x : 1.0, y : 1.0, z : 1.0 };
