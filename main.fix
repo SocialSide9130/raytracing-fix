@@ -3,25 +3,17 @@ module Main;
 import Vec3;
 import Ray;
 
-hit_sphere : Point3 -> F64 -> Ray -> F64;
-hit_sphere = |center, radius, ray| (
-    let oc : Vec3 = ray.@origin - center;
-    let a = (ray.@direction).dot(ray.@direction);
-    let half_b = (ray.@direction).dot(oc);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = half_b * half_b - a * c;
+import Hittable;
 
-    if (discriminant < 0.0) {
-        -1.0
-    } else {
-        (-half_b - sqrt(discriminant)) / a
-    }
-);
+import Sphere;
 
 ray_color : Ray -> Color;
 ray_color = |ray| (
-    let t = ray.hit_sphere(Vec3 { x : 0.0, y : 0.0, z : -1.0 }, 0.5);
-    if (t > 0.0) {
+    let sphere : Sphere = Sphere { center : Vec3 { x : 0.0, y : 0.0, z : -1.0 }, radius : 0.5 };
+    let hit_record = sphere.hit(-F64::infinity, F64::infinity, ray);
+    
+    if (hit_record.is_some) {
+        let t = hit_record.as_some.@t;
         let n = (ray.at(t) - Vec3 { x : 0.0, y : 0.0, z : -1.0 }).unit;
         0.5.times(Vec3 { x : n.@x + 1.0, y : n.@y + 1.0, z : n.@z + 1.0 })
     };

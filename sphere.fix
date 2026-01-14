@@ -1,0 +1,38 @@
+module Sphere;
+
+import Vec3;
+import Ray;
+import Hittable;
+
+type Sphere = struct { center : Point3, radius : F64 };
+
+impl Sphere : Hittable {
+    hit = |t_min, t_max, ray, sphere| (
+        let oc : Vec3 = ray.@origin - sphere.@center;
+        let a = (ray.@direction).dot(ray.@direction);
+        let half_b = (ray.@direction).dot(oc);
+        let c = oc.dot(oc) - sphere.@radius * sphere.@radius;
+        let discriminant = half_b * half_b - a * c;
+
+        if (discriminant > 0.0) {
+            let root = sqrt(discriminant);
+            let temp = (-half_b - root) / a;
+            if (t_min < temp && temp < t_max) {
+                let p = ray.at(temp);
+                let hit_record = HitRecord { p : p, normal : (p - sphere.@center).div_by(sphere.@radius), t : temp };
+                Option::some(hit_record)
+            };
+            
+            let temp = (-half_b + root) / a;
+            if (t_min < temp && temp < t_max) {
+                let p = ray.at(temp);
+                let hit_record = HitRecord { p : p, normal : (p - sphere.@center).div_by(sphere.@radius), t : temp };
+                Option::some(hit_record)
+            };
+
+            Option::none()
+        };
+
+        Option::none()
+    );
+}
