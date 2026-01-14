@@ -3,6 +3,7 @@ module Sphere;
 import Vec3;
 import Ray;
 import Hittable;
+import MathUtil;
 
 type Sphere = struct { center : Point3, radius : F64 };
 

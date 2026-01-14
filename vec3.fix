@@ -1,14 +1,11 @@
 module Vec3;
 
+import MathUtil;
+
 type Vec3 = struct { x : F64, y : F64, z : F64 };
 
 type Color = Vec3;
 type Point3 = Vec3;
-
-namespace F64 {
-    sqrt : F64 -> F64;
-    sqrt = |v| FFI_CALL[F64 sqrt(F64), v];
-}
 
 impl Vec3 : Add {
     add = |v1, v2| (
