@@ -37,7 +37,7 @@ impl Vec3 : Zero {
 
 impl Color : ToString {
     to_string = |v| (
-        (255.99 * v.red).to_I64.to_string + " " + (255.99 * v.green).to_I64.to_string + " " + (255.99 * v.blue).to_I64.to_string
+        (256.0 * v.red).to_I64.to_string + " " + (256.0 * v.green).to_I64.to_string + " " + (256.0 * v.blue).to_I64.to_string
     );
 }
 
@@ -88,5 +88,16 @@ namespace Vec3 {
     unit : Vec3 -> Vec3;
     unit = |v| (
         v.div_by(v.length)
+    );
+
+    get_string_after_sampling : I64 -> Color -> String;
+    get_string_after_sampling = |samples_per_pixel, color| (
+        let scale = 1.0 / samples_per_pixel.to_F64;
+        let r = (color.red * scale).clamp(0.0, 0.999);
+        let g = (color.green * scale).clamp(0.0, 0.999);
+        let b = (color.blue * scale).clamp(0.0, 0.999);
+        let c = Vec3 { x : r, y : g, z : b };
+
+        c.to_string
     );
 }

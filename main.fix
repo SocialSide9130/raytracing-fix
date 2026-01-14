@@ -1,10 +1,12 @@
 module Main;
 
+import Random::{ Random, generate_F64_2, init_by_seed };
+import MathUtil;
+
+import Camera;
 import Vec3;
 import Ray;
-
 import Hittable;
-
 import Sphere;
 
 ray_color : Ray -> HittableObject -> Color;
@@ -24,23 +26,17 @@ ray_color = |ray, world| (
     (1.0 - t).times(c) + t.times(x)
 );
 
-output_ppm : IO () = (
+output_ppm : Random::Random -> IO () = |rand| (
     let aspect_ratio : F64 = 16.0 / 9.0;
     let image_width = 384;
     let image_height = (image_width.to_F64 / aspect_ratio).to_I64;
-
-    let viewport_height : F64 = 2.0;
-    let viewport_width : F64 = aspect_ratio * viewport_height;
-    let focal_length : F64 = 1.0;
-
-    let origin : Point3 = zero;
-    let horizontal : Vec3 = Vec3 { x : viewport_width, y : 0.0, z : 0.0 };
-    let vertical : Vec3 = Vec3 { x : 0.0, y : viewport_height, z : 0.0 };
-    let lower_left_corner : Point3 = origin - horizontal.div_by(2.0) - vertical.div_by(2.0) - Vec3 { x : 0.0, y : 0.0, z : focal_length };
+    let samples_per_pixel : I64 = 100;
 
     let world : HittableObject = HittableObject::hittable_list(
                                 [ HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : 0.0, z : -1.0 }, radius : 0.5 }),
                                   HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : -100.5, z : -1.0 }, radius : 100.0 })]);
+
+    let camera : Camera = make_camera;
 
     "P3".println;;
     (image_width.to_string + " " + image_height.to_string).println;;
@@ -55,14 +51,24 @@ output_ppm : IO () = (
 
         loop_m(0, |x : I64| (
             if x >= image_width { break_m $ () };
-            
-            let u = x.to_F64 / (image_width - 1).to_F64;
-            let v = y.to_F64 / (image_height - 1).to_F64;
 
-            let r : Ray = Ray { origin : origin, direction : lower_left_corner + u.times(horizontal) + v.times(vertical) - origin };
-            let c : Color = ray_color(r, world);
+            let pixel_color : Color = loop((0, rand, zero : Color), |(index, rand, pixel_color)| (
+                let (rand, random_value_0) = generate_F64_2(rand);
+                let (rand, random_value_1) = generate_F64_2(rand);
+                let u = (x.to_F64 + random_value_0) / (image_width - 1).to_F64;
+                let v = (y.to_F64 + random_value_1) / (image_height - 1).to_F64;
 
-            println(c.to_string);;
+                let r : Ray = camera.get_ray(u, v);
+                let c : Color = ray_color(r, world);
+                
+                if (index == 100) {
+                    break $ pixel_color
+                };
+
+                continue $ (index + 1, rand, pixel_color + c)
+            ));
+
+            println(pixel_color.get_string_after_sampling(samples_per_pixel));;
             continue_m $ x + 1
         ));;
         continue_m $ y - 1
@@ -72,5 +78,7 @@ output_ppm : IO () = (
 );
 
 main : IO () = (
-    output_ppm
+    let random : Random::Random = init_by_seed(0_U64);
+
+    output_ppm(random)
 );
