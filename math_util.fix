@@ -1,5 +1,7 @@
 module MathUtil;
 
+import Random::{ Random, generate_F64_2 };
+
 namespace MathUtil {
     pi : F64 = 3.14159265358979;
 
@@ -8,4 +10,22 @@ namespace MathUtil {
 
     degrees_to_radians : F64 -> F64;
     degrees_to_radians = |degrees| degrees * pi / 180.0;
+
+    random_in_range : Random::Random -> F64 -> F64 -> (Random::Random, F64);
+    random_in_range = |min, max, rand| (
+        let (rand, value) = generate_F64_2(rand);
+
+        (rand, min + (max - min) * value)
+    );
+
+    clamp : F64 -> F64 -> F64 -> F64;
+    clamp = |min, max, x| (
+        if (x < min) {
+            min
+        } else if (max < x) {
+            max
+        } else {
+            x
+        }
+    );
 }
