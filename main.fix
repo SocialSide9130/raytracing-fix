@@ -7,15 +7,13 @@ import Hittable;
 
 import Sphere;
 
-ray_color : Ray -> Color;
-ray_color = |ray| (
-    let sphere : Sphere = Sphere { center : Vec3 { x : 0.0, y : 0.0, z : -1.0 }, radius : 0.5 };
-    let hit_record = sphere.hit(-F64::infinity, F64::infinity, ray);
+ray_color : Ray -> HittableObject -> Color;
+ray_color = |ray, world| (
+    let hit_record = world.hit(0.0, F64::infinity, ray);
     
     if (hit_record.is_some) {
-        let t = hit_record.as_some.@t;
-        let n = (ray.at(t) - Vec3 { x : 0.0, y : 0.0, z : -1.0 }).unit;
-        0.5.times(Vec3 { x : n.@x + 1.0, y : n.@y + 1.0, z : n.@z + 1.0 })
+        let hit_record = hit_record.as_some;
+        0.5.times(hit_record.@normal + Vec3 { x : 1.0, y : 1.0, z : 1.0 })
     };
 
     let unit_direction : Vec3 = ray.@direction.unit;
@@ -40,6 +38,10 @@ output_ppm : IO () = (
     let vertical : Vec3 = Vec3 { x : 0.0, y : viewport_height, z : 0.0 };
     let lower_left_corner : Point3 = origin - horizontal.div_by(2.0) - vertical.div_by(2.0) - Vec3 { x : 0.0, y : 0.0, z : focal_length };
 
+    let world : HittableObject = HittableObject::hittable_list(
+                                [ HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : 0.0, z : -1.0 }, radius : 0.5 }),
+                                  HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : -100.5, z : -1.0 }, radius : 100.0 })]);
+
     "P3".println;;
     (image_width.to_string + " " + image_height.to_string).println;;
     "255".println;;
@@ -58,7 +60,7 @@ output_ppm : IO () = (
             let v = y.to_F64 / (image_height - 1).to_F64;
 
             let r : Ray = Ray { origin : origin, direction : lower_left_corner + u.times(horizontal) + v.times(vertical) - origin };
-            let c : Color = r.ray_color;
+            let c : Color = ray_color(r, world);
 
             println(c.to_string);;
             continue_m $ x + 1

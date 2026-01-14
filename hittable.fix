@@ -9,7 +9,37 @@ import Sphere;
 type HitRecord = struct { p : Point3, normal : Vec3, t : F64, front_face : Bool };
 
 trait a : Hittable {
+    // t_min -> t_max -> ray -> object
     hit : F64 -> F64 -> Ray -> a -> Option HitRecord;
 }
 
 type HittableObject = union { sphere : Sphere, hittable_list : Array HittableObject };
+
+impl HittableObject : Hittable {
+    hit = |t_min, t_max, ray, hittable| (
+        match hittable {
+            sphere(sphere) => sphere.hit(t_min, t_max, ray),
+            hittable_list(hittable_list) => hittable_list.hit(t_min, t_max, ray)
+        }
+    );
+}
+
+impl Array HittableObject : Hittable {
+    hit = |t_min, t_max, ray, world| (
+        loop((0, Option::none()), |(index, closest_hit_so_far_or_none : Option HitRecord)| (
+            if (index == world.get_size) {
+                break $ closest_hit_so_far_or_none
+            };
+
+            let object = world.@(index);
+            let closest_so_far = if (closest_hit_so_far_or_none.is_some) { closest_hit_so_far_or_none.as_some.@t } else { t_max };
+            let hit_record = object.hit(t_min, closest_so_far, ray);
+
+            if (hit_record.is_some) {
+                continue $ (index + 1, hit_record)
+            } else {
+                continue $ (index + 1, closest_hit_so_far_or_none)
+            }
+        ))
+    );
+}
