@@ -19,14 +19,22 @@ impl Sphere : Hittable {
             let temp = (-half_b - root) / a;
             if (t_min < temp && temp < t_max) {
                 let p = ray.at(temp);
-                let hit_record = HitRecord { p : p, normal : (p - sphere.@center).div_by(sphere.@radius), t : temp };
+                let outward_normal = (p - sphere.@center).div_by(sphere.@radius);
+                let front_face = ray.@direction.dot(outward_normal) < 0.0;
+                let normal = if (front_face) { outward_normal } else { -outward_normal };
+                let hit_record = HitRecord { p : p, normal : normal, t : temp, front_face : front_face };
+
                 Option::some(hit_record)
             };
             
             let temp = (-half_b + root) / a;
             if (t_min < temp && temp < t_max) {
                 let p = ray.at(temp);
-                let hit_record = HitRecord { p : p, normal : (p - sphere.@center).div_by(sphere.@radius), t : temp };
+                let outward_normal = (p - sphere.@center).div_by(sphere.@radius);
+                let front_face = ray.@direction.dot(outward_normal) < 0.0;
+                let normal = if (front_face) { outward_normal } else { -outward_normal };
+                let hit_record = HitRecord { p : p, normal : normal, t : temp, front_face : front_face };
+
                 Option::some(hit_record)
             };
 

@@ -6,10 +6,10 @@ import Ray;
 // import all hittable objects
 import Sphere;
 
-type HitRecord = struct { p : Point3, normal : Vec3, t : F64 };
+type HitRecord = struct { p : Point3, normal : Vec3, t : F64, front_face : Bool };
 
 trait a : Hittable {
     hit : F64 -> F64 -> Ray -> a -> Option HitRecord;
 }
 
-type HittableObject = union { sphere : Sphere };
+type HittableObject = union { sphere : Sphere, hittable_list : Array HittableObject };
