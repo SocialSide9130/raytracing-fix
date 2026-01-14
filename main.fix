@@ -51,7 +51,7 @@ output_ppm : IO () = (
             break_m $ ()
         };
 
-        pure(debug_eprintln $ "Scanlines remaining: " + y.to_string);;
+        pure(debug_eprint $ "\rScanlines remaining: " + y.to_string + "   ");;
 
         loop_m(0, |x : I64| (
             if x >= image_width { break_m $ () };
