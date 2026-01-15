@@ -11,7 +11,7 @@ namespace MathUtil {
     degrees_to_radians : F64 -> F64;
     degrees_to_radians = |degrees| degrees * pi / 180.0;
 
-    random_in_range : Random::Random -> F64 -> F64 -> (Random::Random, F64);
+    random_in_range : F64 -> F64 -> Random::Random -> (Random::Random, F64);
     random_in_range = |min, max, rand| (
         let (rand, value) = generate_F64_2(rand);
 
