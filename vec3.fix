@@ -1,5 +1,6 @@
 module Vec3;
 
+import Random::Random;
 import MathUtil;
 
 type Vec3 = struct { x : F64, y : F64, z : F64 };
@@ -51,6 +52,11 @@ namespace Vec3 {
     blue : Vec3 -> F64;
     blue = |v| v.@z;
 
+    make_vec3 : F64 -> F64 -> F64 -> Vec3;
+    make_vec3 = |x, y, z| (
+        Vec3 { x : x, y : y, z : z }
+    );
+
     times : Vec3 -> F64 -> Vec3;
     times = |v, t| (
         Vec3 { x : t * v.@x, y : t * v.@y, z : t * v.@z }
@@ -93,11 +99,31 @@ namespace Vec3 {
     get_string_after_sampling : I64 -> Color -> String;
     get_string_after_sampling = |samples_per_pixel, color| (
         let scale = 1.0 / samples_per_pixel.to_F64;
-        let r = (color.red * scale).clamp(0.0, 0.999);
-        let g = (color.green * scale).clamp(0.0, 0.999);
-        let b = (color.blue * scale).clamp(0.0, 0.999);
+        let r = (color.red * scale).sqrt.clamp(0.0, 0.999);
+        let g = (color.green * scale).sqrt.clamp(0.0, 0.999);
+        let b = (color.blue * scale).sqrt.clamp(0.0, 0.999);
         let c = Vec3 { x : r, y : g, z : b };
 
         c.to_string
+    );
+
+    random_in_range : F64 -> F64 -> Random::Random -> (Random::Random, Vec3);
+    random_in_range = |min, max, random| (
+        let (random, x) = random.random_in_range(min, max) : (Random::Random, F64);
+        let (random, y) = random.random_in_range(min, max) : (Random::Random, F64);
+        let (random, z) = random.random_in_range(min, max) : (Random::Random, F64);
+
+        (random, make_vec3(x, y, z))
+    );
+
+    random_in_unit_sphere : Random::Random -> (Random::Random, Vec3);
+    random_in_unit_sphere = |random| (
+        let (random, p) = random.random_in_range(-1.0, 1.0) : (Random::Random, Vec3);
+
+        if (p.squared_length < 1.0) {
+            (random, p)
+        } else {
+            random_in_unit_sphere(random)
+        }
     );
 }

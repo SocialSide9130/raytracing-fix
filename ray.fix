@@ -5,6 +5,9 @@ import Vec3;
 type Ray = struct { origin : Point3, direction : Vec3 };
 
 namespace Ray {
+    make_ray : Point3 -> Vec3 -> Ray;
+    make_ray = |origin, direction| Ray { origin : origin, direction : direction };
+
     at : F64 -> Ray -> Point3;
     at = |t, ray| (
         ray.@origin + t.times(ray.@direction)

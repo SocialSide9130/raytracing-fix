@@ -9,13 +9,21 @@ import Ray;
 import Hittable;
 import Sphere;
 
-ray_color : Ray -> HittableObject -> Color;
-ray_color = |ray, world| (
-    let hit_record = world.hit(0.0, F64::infinity, ray);
+ray_color : Random::Random -> Ray -> I64 -> HittableObject -> (Random::Random, Color);
+ray_color = |random, ray, depth, world| (
+    let hit_record = world.hit(0.001, F64::infinity, ray);
+
+    if (depth <= 0) {
+        (random, make_vec3(0.0, 0.0, 0.0))
+    };
     
     if (hit_record.is_some) {
         let hit_record = hit_record.as_some;
-        0.5.times(hit_record.@normal + Vec3 { x : 1.0, y : 1.0, z : 1.0 })
+        let (random, diffuse_ray) = random.random_in_unit_sphere;
+        let target = hit_record.@p + hit_record.@normal + diffuse_ray;
+        let (random, diffuse_color) = world.ray_color(random, make_ray(hit_record.@p, target - hit_record.@p), depth - 1);
+
+        (random, 0.5.times(diffuse_color))
     };
 
     let unit_direction : Vec3 = ray.@direction.unit;
@@ -23,7 +31,7 @@ ray_color = |ray, world| (
     let c : Color = Vec3 { x : 1.0, y : 1.0, z : 1.0 };
     let x : Color = Vec3 { x : 0.5, y : 0.7, z : 1.0 };
 
-    (1.0 - t).times(c) + t.times(x)
+    (random, (1.0 - t).times(c) + t.times(x))
 );
 
 output_ppm : Random::Random -> IO () = |rand| (
@@ -31,6 +39,7 @@ output_ppm : Random::Random -> IO () = |rand| (
     let image_width = 384;
     let image_height = (image_width.to_F64 / aspect_ratio).to_I64;
     let samples_per_pixel : I64 = 100;
+    let max_depth : I64 = 50;
 
     let world : HittableObject = HittableObject::hittable_list(
                                 [ HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : 0.0, z : -1.0 }, radius : 0.5 }),
@@ -59,7 +68,7 @@ output_ppm : Random::Random -> IO () = |rand| (
                 let v = (y.to_F64 + random_value_1) / (image_height - 1).to_F64;
 
                 let r : Ray = camera.get_ray(u, v);
-                let c : Color = ray_color(r, world);
+                let (rand, c) = ray_color(rand, r, max_depth, world);
                 
                 if (index == 100) {
                     break $ pixel_color
