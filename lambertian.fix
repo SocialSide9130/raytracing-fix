@@ -1,0 +1,19 @@
+module Lambertian;
+
+import Material;
+
+import Ray;
+import Hittable;
+import Vec3;
+
+type Lambertian = struct { albedo : Color };
+
+impl Lambertian : Material {
+    scatter = |random, ray_in, hit_record, material| (
+        let (random, random_unit_vector) = random.random_unit_vector;
+        let scatter_direction = hit_record.@normal + random_unit_vector;
+        let scattered = make_ray(hit_record.@p, scatter_direction);
+
+        Option::some $ (random, material.@albedo, scattered)
+    );
+}
