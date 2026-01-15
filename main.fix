@@ -9,6 +9,10 @@ import Ray;
 import Hittable;
 import Sphere;
 
+import Material;
+import Lambertian;
+import Metal;
+
 ray_color : Random::Random -> Ray -> I64 -> HittableObject -> (Random::Random, Color);
 ray_color = |random, ray, depth, world| (
     let hit_record = world.hit(0.001, F64::infinity, ray);
@@ -19,17 +23,22 @@ ray_color = |random, ray, depth, world| (
     
     if (hit_record.is_some) {
         let hit_record = hit_record.as_some;
-        let (random, diffuse_ray) = random.random_unit_vector;
-        let target = hit_record.@p + hit_record.@normal + diffuse_ray;
-        let (random, diffuse_color) = world.ray_color(random, make_ray(hit_record.@p, target - hit_record.@p), depth - 1);
+        let scatter = hit_record.@material.scatter(random, ray, hit_record);
 
-        (random, 0.5.times(diffuse_color))
+        if (scatter.is_some) {
+            let (random, attenuation, scattered) = scatter.as_some;
+            let (random, color) = world.ray_color(random, scattered, depth - 1);
+
+            (random, attenuation.multiply(color))
+        };
+
+        (random, zero)
     };
 
     let unit_direction : Vec3 = ray.@direction.unit;
     let t = 0.5 * (unit_direction.@y + 1.0);
-    let c : Color = Vec3 { x : 1.0, y : 1.0, z : 1.0 };
-    let x : Color = Vec3 { x : 0.5, y : 0.7, z : 1.0 };
+    let c : Color = make_vec3(1.0, 1.0, 1.0);
+    let x : Color = make_vec3(0.5, 0.7, 1.0);
 
     (random, (1.0 - t).times(c) + t.times(x))
 );
@@ -41,9 +50,36 @@ output_ppm : Random::Random -> IO () = |rand| (
     let samples_per_pixel : I64 = 100;
     let max_depth : I64 = 50;
 
-    let world : HittableObject = HittableObject::hittable_list(
-                                [ HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : 0.0, z : -1.0 }, radius : 0.5 }),
-                                  HittableObject::sphere(Sphere { center : Vec3 { x : 0.0, y : -100.5, z : -1.0 }, radius : 100.0 })]);
+    let world : HittableObject = HittableObject::hittable_list([
+                                    HittableObject::sphere(
+                                        Sphere {
+                                            center : make_vec3(0.0, 0.0, -1.0),
+                                            radius : 0.5,
+                                            material : MaterialObject::lambertian(Lambertian { albedo : make_vec3(0.7, 0.3, 0.3) })
+                                        }
+                                    ),
+                                    HittableObject::sphere(
+                                        Sphere {
+                                            center : make_vec3(0.0, -100.5, -1.0),
+                                            radius : 100.0,
+                                            material : MaterialObject::lambertian(Lambertian { albedo : make_vec3(0.8, 0.8, 0.0) })
+                                        }
+                                    ),
+                                    HittableObject::sphere(
+                                        Sphere {
+                                            center : make_vec3(1.0, 0.0, -1.0),
+                                            radius : 0.5,
+                                            material : MaterialObject::metal(Metal { albedo : make_vec3(0.8, 0.6, 0.2), fuzz : 0.3 })
+                                        }
+                                    ),
+                                    HittableObject::sphere(
+                                        Sphere {
+                                            center : make_vec3(-1.0, 0.0, -1.0),
+                                            radius : 0.5,
+                                            material : MaterialObject::metal(Metal { albedo : make_vec3(0.8, 0.8, 0.8), fuzz : 0.0 })
+                                        }
+                                    ),
+                                ]);
 
     let camera : Camera = make_camera;
 
