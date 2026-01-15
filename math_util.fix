@@ -5,6 +5,12 @@ import Random::{ Random, generate_F64_2 };
 namespace MathUtil {
     pi : F64 = 3.14159265358979;
 
+    sin : F64 -> F64;
+    sin = |a| FFI_CALL[F64 sin(F64), a];
+
+    cos : F64 -> F64;
+    cos = |a| FFI_CALL[F64 cos(F64), a];
+
     sqrt : F64 -> F64;
     sqrt = |v| FFI_CALL[F64 sqrt(F64), v];
 
