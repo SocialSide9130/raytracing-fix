@@ -1,0 +1,26 @@
+module Material;
+
+import Ray;
+import Hittable;
+import Vec3;
+
+import Lambertian;
+import Metal;
+
+import Random::Random;
+
+type MaterialObject = union { lambertian : Lambertian, metal : Metal };
+
+trait a : Material {
+    // random -> ray_in -> hit_record -> material -> (random, attenuation, scattered)
+    scatter : Random::Random -> Ray -> HitRecord -> a -> Option (Random::Random, Color, Ray);
+}
+
+impl MaterialObject : Material {
+    scatter = |random, ray_in, hit_record, material| (
+        match material {
+            lambertian(l) => l.scatter(random, ray_in, hit_record),
+            metal(m) => m.scatter(random, ray_in, hit_record),
+        }
+    );
+}

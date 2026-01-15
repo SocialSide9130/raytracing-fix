@@ -2,11 +2,12 @@ module Hittable;
 
 import Vec3;
 import Ray;
+import Material;
 
 // import all hittable objects
 import Sphere;
 
-type HitRecord = struct { p : Point3, normal : Vec3, t : F64, front_face : Bool };
+type HitRecord = struct { p : Point3, normal : Vec3, t : F64, front_face : Bool, material : MaterialObject };
 
 trait a : Hittable {
     // t_min -> t_max -> ray -> object

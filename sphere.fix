@@ -4,8 +4,9 @@ import Vec3;
 import Ray;
 import Hittable;
 import MathUtil;
+import Material;
 
-type Sphere = struct { center : Point3, radius : F64 };
+type Sphere = struct { center : Point3, radius : F64, material : MaterialObject };
 
 impl Sphere : Hittable {
     hit = |t_min, t_max, ray, sphere| (
@@ -23,7 +24,7 @@ impl Sphere : Hittable {
                 let outward_normal = (p - sphere.@center).div_by(sphere.@radius);
                 let front_face = ray.@direction.dot(outward_normal) < 0.0;
                 let normal = if (front_face) { outward_normal } else { -outward_normal };
-                let hit_record = HitRecord { p : p, normal : normal, t : temp, front_face : front_face };
+                let hit_record = HitRecord { p : p, normal : normal, t : temp, front_face : front_face, material : sphere.@material };
 
                 Option::some(hit_record)
             };
@@ -34,7 +35,7 @@ impl Sphere : Hittable {
                 let outward_normal = (p - sphere.@center).div_by(sphere.@radius);
                 let front_face = ray.@direction.dot(outward_normal) < 0.0;
                 let normal = if (front_face) { outward_normal } else { -outward_normal };
-                let hit_record = HitRecord { p : p, normal : normal, t : temp, front_face : front_face };
+                let hit_record = HitRecord { p : p, normal : normal, t : temp, front_face : front_face, material : sphere.@material };
 
                 Option::some(hit_record)
             };
