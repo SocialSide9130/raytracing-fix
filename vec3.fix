@@ -126,4 +126,13 @@ namespace Vec3 {
             random_in_unit_sphere(random)
         }
     );
+
+    random_unit_vector : Random::Random -> (Random::Random, Vec3);
+    random_unit_vector = |random| (
+        let (random, a) = random.random_in_range(0.0, 2.0 * pi)  : (Random::Random, F64);
+        let (random, z) = random.random_in_range(-1.0, 1.0)  : (Random::Random, F64);
+        let r = sqrt(1.0 - z * z);
+
+        (random, make_vec3(r * cos(a), r * sin(a), z))
+    );
 }

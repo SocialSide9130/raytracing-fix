@@ -19,7 +19,7 @@ ray_color = |random, ray, depth, world| (
     
     if (hit_record.is_some) {
         let hit_record = hit_record.as_some;
-        let (random, diffuse_ray) = random.random_in_unit_sphere;
+        let (random, diffuse_ray) = random.random_unit_vector;
         let target = hit_record.@p + hit_record.@normal + diffuse_ray;
         let (random, diffuse_color) = world.ray_color(random, make_ray(hit_record.@p, target - hit_record.@p), depth - 1);
 
