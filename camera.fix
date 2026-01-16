@@ -1,5 +1,6 @@
 module Camera;
 
+import Random::Random;
 import Vec3;
 import Ray;
 import MathUtil;
@@ -9,11 +10,15 @@ type Camera = struct {
     horizontal : Vec3,
     vertical : Vec3,
     lower_left_corner : Vec3,
+    u : Vec3,
+    v : Vec3,
+    w : Vec3,
+    lens_radius : F64,
 };
 
 namespace Camera {
-    make_camera : Point3 -> Point3 -> Vec3 -> F64 -> F64 -> Camera;
-    make_camera = |lookfrom, lookat, vup, vfov, aspect_ratio| (
+    make_camera : Point3 -> Point3 -> Vec3 -> F64 -> F64 -> F64 -> F64 -> Camera;
+    make_camera = |lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist| (
         let theta = vfov.degrees_to_radians;
         let h = tan(theta / 2.0);
         let viewport_height : F64 = 2.0 * h;
@@ -24,23 +29,35 @@ namespace Camera {
         let v = cross(w, u);
 
         let origin : Vec3 = lookfrom;
-        let horizontal = viewport_width.times(u);
-        let vertical = viewport_height.times(v);
-        let lower_left_corner = origin - horizontal.div_by(2.0) - vertical.div_by(2.0) - w;
+        let horizontal = (focus_dist * viewport_width).times(u);
+        let vertical = (focus_dist * viewport_height).times(v);
+        let lower_left_corner = origin - horizontal.div_by(2.0) - vertical.div_by(2.0) - focus_dist.times(w);
+        let lens_radius = aperture / 2.0;
 
         Camera {
             origin : origin,
             horizontal : horizontal,
             vertical : vertical,
             lower_left_corner : lower_left_corner,
+            u : u,
+            v : v,
+            w : w,
+            lens_radius : lens_radius,
         }
     );
 
-    get_ray : F64 -> F64 -> Camera -> Ray;
-    get_ray = |u, v, camera| (
-        Ray {
-            origin : camera.@origin,
-            direction : camera.@lower_left_corner + u.times(camera.@horizontal) + v.times(camera.@vertical) - camera.@origin
-        }
+    get_ray : F64 -> F64 -> Random::Random -> Camera -> (Random::Random, Ray);
+    get_ray = |s, t, random, camera| (
+        let (random, rv) = random.random_in_unit_disk;
+        let rd = camera.@lens_radius.times(rv);
+        let offset = rd.@x.times(camera.@u) + rd.@y.times(camera.@v);
+
+        (
+            random,
+            Ray {
+                origin : camera.@origin + offset,
+                direction : camera.@lower_left_corner + s.times(camera.@horizontal) + t.times(camera.@vertical) - camera.@origin - offset
+            }
+        )
     );
 }

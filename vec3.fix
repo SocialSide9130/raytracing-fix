@@ -144,4 +144,19 @@ namespace Vec3 {
 
         (random, make_vec3(r * cos(a), r * sin(a), z))
     );
+
+    random_in_unit_disk : Random::Random -> (Random::Random, Vec3);
+    random_in_unit_disk = |random| (
+        loop(random, |random| (
+            let (random, x) = random.random_in_range(-1.0, 1.0) : (Random::Random, F64);
+            let (random, y) = random.random_in_range(-1.0, 1.0) : (Random::Random, F64);
+            let p = make_vec3(x, y, 0.0);
+
+            if (p.squared_length >= 1.0) {
+                continue $ random
+            };
+
+            break $ (random, p)
+        ))
+    );
 }

@@ -69,12 +69,20 @@ output_ppm : Random::Random -> IO () = |rand| (
                                     )
                                 ]);
 
+    let lookfrom = make_vec3(3.0, 3.0, 2.0);
+    let lookat = make_vec3(0.0, 0.0, -1.0);
+    let vup = make_vec3(0.0, 1.0, 0.0);
+    let aperture = 2.0;
+    let dist_to_focus = (lookfrom - lookat).length;
+
     let camera : Camera = make_camera(
-        make_vec3(-2.0, 2.0, 1.0),
-        make_vec3(0.0, 0.0, -1.0),
-        make_vec3(0.0, 1.0, 0.0),
+        lookfrom,
+        lookat,
+        vup,
         20.0,
-        aspect_ratio
+        aspect_ratio,
+        aperture,
+        dist_to_focus
     );
 
     "P3".println;;
@@ -97,7 +105,7 @@ output_ppm : Random::Random -> IO () = |rand| (
                 let u = (x.to_F64 + random_value_0) / (image_width - 1).to_F64;
                 let v = (y.to_F64 + random_value_1) / (image_height - 1).to_F64;
 
-                let r : Ray = camera.get_ray(u, v);
+                let (rand, r) = camera.get_ray(u, v, rand);
                 let (rand, c) = ray_color(rand, r, max_depth, world);
                 
                 if (index == 100) {
