@@ -8,6 +8,13 @@ import Material;
 
 type Sphere = struct { center : Point3, radius : F64, material : MaterialObject };
 
+namespace Sphere {
+    make_sphere : Point3 -> F64 -> MaterialObject -> Sphere;
+    make_sphere = |center, radius, material| (
+        Sphere { center : center, radius : radius, material : material }
+    );
+}
+
 impl Sphere : Hittable {
     hit = |t_min, t_max, ray, sphere| (
         let oc : Vec3 = ray.@origin - sphere.@center;
