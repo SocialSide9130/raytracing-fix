@@ -11,6 +11,9 @@ namespace MathUtil {
     cos : F64 -> F64;
     cos = |a| FFI_CALL[F64 cos(F64), a];
 
+    tan : F64 -> F64;
+    tan = |a| FFI_CALL[F64 tan(F64), a];
+
     sqrt : F64 -> F64;
     sqrt = |v| FFI_CALL[F64 sqrt(F64), v];
 

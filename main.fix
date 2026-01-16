@@ -50,46 +50,32 @@ output_ppm : Random::Random -> IO () = |rand| (
     let image_height = (image_width.to_F64 / aspect_ratio).to_I64;
     let samples_per_pixel : I64 = 100;
     let max_depth : I64 = 50;
+    let r = cos(pi / 4.0);
 
     let world : HittableObject = HittableObject::hittable_list([
                                     HittableObject::sphere(
-                                        Sphere {
-                                            center : make_vec3(0.0, 0.0, -1.0),
-                                            radius : 0.5,
-                                            material : MaterialObject::lambertian(Lambertian { albedo : make_vec3(0.7, 0.3, 0.3) })
-                                        }
+                                        make_sphere(make_vec3(-r, 0.0, -1.0),
+                                        r,
+                                        MaterialObject::lambertian(
+                                            Lambertian { albedo : make_vec3(0.0, 0.0, 1.0) }
+                                        ))
                                     ),
                                     HittableObject::sphere(
-                                        Sphere {
-                                            center : make_vec3(0.0, -100.5, -1.0),
-                                            radius : 100.0,
-                                            material : MaterialObject::lambertian(Lambertian { albedo : make_vec3(0.8, 0.8, 0.0) })
-                                        }
-                                    ),
-                                    HittableObject::sphere(
-                                        Sphere {
-                                            center : make_vec3(1.0, 0.0, -1.0),
-                                            radius : 0.5,
-                                            material : MaterialObject::dielectric(Dielectric { refraction_index : 1.50 })
-                                        }
-                                    ),
-                                    HittableObject::sphere(
-                                        Sphere {
-                                            center : make_vec3(1.0, 0.0, -1.0),
-                                            radius : 0.4,
-                                            material : MaterialObject::dielectric(Dielectric { refraction_index : 1.00 / 1.50 })
-                                        }
-                                    ),
-                                    HittableObject::sphere(
-                                        Sphere {
-                                            center : make_vec3(-1.0, 0.0, -1.0),
-                                            radius : 0.5,
-                                            material : MaterialObject::metal(Metal { albedo : make_vec3(0.8, 0.8, 0.8), fuzz : 0.0 })
-                                        }
-                                    ),
+                                        make_sphere(make_vec3(r, 0.0, -1.0),
+                                        r,
+                                        MaterialObject::lambertian(
+                                            Lambertian { albedo : make_vec3(1.0, 0.0, 0.0) }
+                                        ))
+                                    )
                                 ]);
 
-    let camera : Camera = make_camera;
+    let camera : Camera = make_camera(
+        make_vec3(-2.0, 2.0, 1.0),
+        make_vec3(0.0, 0.0, -1.0),
+        make_vec3(0.0, 1.0, 0.0),
+        20.0,
+        aspect_ratio
+    );
 
     "P3".println;;
     (image_width.to_string + " " + image_height.to_string).println;;
