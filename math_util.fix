@@ -14,6 +14,9 @@ namespace MathUtil {
     sqrt : F64 -> F64;
     sqrt = |v| FFI_CALL[F64 sqrt(F64), v];
 
+    pow5 : F64 -> F64;
+    pow5 = |v| v * v * v * v * v;
+
     degrees_to_radians : F64 -> F64;
     degrees_to_radians = |degrees| degrees * pi / 180.0;
 

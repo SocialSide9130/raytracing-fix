@@ -8,10 +8,16 @@ import Vec3;
 
 type Metal = struct { albedo : Color, fuzz : F64 };
 
+impl Metal : Specular {
+    reflect = |v, n, metal| (
+        v - (2.0 * v.dot(n)).times(n)
+    );
+}
+
 impl Metal : Material {
     scatter = |random, ray_in, hit_record, metal| (
         let (random, random_in_unit_sphere) = random.random_in_unit_sphere;
-        let reflected = reflect(ray_in.@direction.unit, hit_record.@normal);
+        let reflected = metal.reflect(ray_in.@direction.unit, hit_record.@normal);
         let scattered = make_ray(hit_record.@p, reflected + metal.@fuzz.times(random_in_unit_sphere));
         let attenuation = metal.@albedo;
 
@@ -20,12 +26,5 @@ impl Metal : Material {
         };
 
         Option::none $ ()
-    );
-}
-
-namespace Metal {
-    reflect : Vec3 -> Vec3 -> Vec3;
-    reflect = |v, n| (
-        v - (2.0 * v.dot(n)).times(n)
     );
 }

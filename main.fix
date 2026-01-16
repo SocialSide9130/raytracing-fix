@@ -70,7 +70,14 @@ output_ppm : Random::Random -> IO () = |rand| (
                                         Sphere {
                                             center : make_vec3(1.0, 0.0, -1.0),
                                             radius : 0.5,
-                                            material : MaterialObject::dielectric(Dielectric { refraction_index : 1.5 })
+                                            material : MaterialObject::dielectric(Dielectric { refraction_index : 1.50 })
+                                        }
+                                    ),
+                                    HittableObject::sphere(
+                                        Sphere {
+                                            center : make_vec3(1.0, 0.0, -1.0),
+                                            radius : 0.4,
+                                            material : MaterialObject::dielectric(Dielectric { refraction_index : 1.00 / 1.50 })
                                         }
                                     ),
                                     HittableObject::sphere(

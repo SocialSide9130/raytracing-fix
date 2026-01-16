@@ -17,6 +17,10 @@ trait a : Material {
     scatter : Random::Random -> Ray -> HitRecord -> a -> Option (Random::Random, Color, Ray);
 }
 
+trait a : Specular {
+    reflect : Vec3 -> Vec3 -> a -> Vec3;
+}
+
 impl MaterialObject : Material {
     scatter = |random, ray_in, hit_record, material| (
         match material {
