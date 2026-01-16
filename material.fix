@@ -6,10 +6,11 @@ import Vec3;
 
 import Lambertian;
 import Metal;
+import Dielectric;
 
 import Random::Random;
 
-type MaterialObject = union { lambertian : Lambertian, metal : Metal };
+type MaterialObject = union { lambertian : Lambertian, metal : Metal, dielectric : Dielectric };
 
 trait a : Material {
     // random -> ray_in -> hit_record -> material -> (random, attenuation, scattered)
@@ -21,6 +22,7 @@ impl MaterialObject : Material {
         match material {
             lambertian(l) => l.scatter(random, ray_in, hit_record),
             metal(m) => m.scatter(random, ray_in, hit_record),
+            dielectric(d) => d.scatter(random, ray_in, hit_record),
         }
     );
 }

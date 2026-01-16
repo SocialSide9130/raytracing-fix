@@ -12,6 +12,7 @@ import Sphere;
 import Material;
 import Lambertian;
 import Metal;
+import Dielectric;
 
 ray_color : Random::Random -> Ray -> I64 -> HittableObject -> (Random::Random, Color);
 ray_color = |random, ray, depth, world| (
@@ -69,7 +70,7 @@ output_ppm : Random::Random -> IO () = |rand| (
                                         Sphere {
                                             center : make_vec3(1.0, 0.0, -1.0),
                                             radius : 0.5,
-                                            material : MaterialObject::metal(Metal { albedo : make_vec3(0.8, 0.6, 0.2), fuzz : 0.3 })
+                                            material : MaterialObject::dielectric(Dielectric { refraction_index : 1.5 })
                                         }
                                     ),
                                     HittableObject::sphere(
