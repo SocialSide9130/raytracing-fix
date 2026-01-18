@@ -14,6 +14,107 @@ import Lambertian;
 import Metal;
 import Dielectric;
 
+random_sphere : I64 -> I64 -> Random::Random -> (Random::Random, Option HittableObject);
+random_sphere = |a, b, random| (
+    let (random, choose_mat) = random.generate_F64_2;
+    let (random, r1) = random.generate_F64_2;
+    let (random, r2) = random.generate_F64_2;
+
+    let center : Point3 = make_vec3(a.to_F64 + 0.9 * r1, 0.2, b.to_F64 + 0.9 * r2);
+
+    let (random, sphere_or_none) = if ((center - make_vec3(4.0, 0.2, 0.0)).length > 0.9) {
+        if (choose_mat < 0.8) {
+            let (random, r1) = random.random_in_range(0.0, 1.0) : (Random::Random, Vec3);
+            let (random, r2) = random.random_in_range(0.0, 1.0) : (Random::Random, Vec3);
+            let albedo = r1.multiply(r2);
+
+            (
+                random,
+                Option::some(
+                    HittableObject::sphere(
+                        make_sphere(center, 0.2, MaterialObject::lambertian(Lambertian { albedo : albedo }))
+                    )
+                )
+            )
+        } else if (choose_mat < 0.95) {
+            let (random, albedo) = random.random_in_range(0.5, 1.0) : (Random::Random, Vec3);
+            let (random, fuzz) = random.random_in_range(0.0, 0.5) : (Random::Random, F64);
+
+            (
+                random,
+                Option::some(
+                    HittableObject::sphere(
+                        make_sphere(center, 0.2, MaterialObject::metal(Metal { albedo : albedo, fuzz : fuzz }))
+                    )
+                )
+            )
+        } else {
+            (
+                random,
+                Option::some(
+                    HittableObject::sphere(
+                        make_sphere(center, 0.2, MaterialObject::dielectric(Dielectric { refraction_index : 1.5 }))
+                    )
+                )
+            )
+        }
+    } else {
+        (random, Option::none $ ())
+    };
+
+    (random, sphere_or_none)
+);
+
+random_scene : Random::Random -> (Random::Random, HittableObject);
+random_scene = |random| (
+    let world : Array HittableObject = [
+        HittableObject::sphere(
+            make_sphere(
+                make_vec3(0.0, -1000.0, 0.0),
+                1000.0,
+                MaterialObject::lambertian(Lambertian { albedo : make_vec3(0.5, 0.5, 0.5) })
+            )
+        ),
+    ];
+
+    let coordinates = range(-11, 11).flat_map(|a| range(-11, 11).map(|b| (a, b)));
+
+    let (random, world) = coordinates.fold((random, world), |(a, b), (random, world)| (
+        let (random, sphere) = random.random_sphere(a, b);
+
+        if (sphere.is_some) {
+            (random, world.push_back(sphere.as_some))
+        } else {
+            (random, world)
+        }
+    ));
+
+    let sphere1 = HittableObject::sphere(
+        make_sphere(
+            make_vec3(0.0, 1.0, 0.0),
+            1.0,
+            MaterialObject::dielectric(Dielectric { refraction_index : 1.5 })
+        )
+    );
+    let sphere2 = HittableObject::sphere(
+        make_sphere(
+            make_vec3(-4.0, 1.0, 0.0),
+            1.0,
+            MaterialObject::lambertian(Lambertian { albedo : make_vec3(0.4, 0.2, 0.1) })
+        )
+    );
+    let sphere3 = HittableObject::sphere(
+        make_sphere(
+            make_vec3(4.0, 1.0, 0.0),
+            1.0,
+            MaterialObject::metal(Metal { albedo : make_vec3(0.7, 0.6, 0.5), fuzz : 0.0 })
+        )
+    );
+    let world = world.append([sphere1, sphere2, sphere3]);
+
+    (random, HittableObject::hittable_list(world))
+);
+
 ray_color : Random::Random -> Ray -> I64 -> HittableObject -> (Random::Random, Color);
 ray_color = |random, ray, depth, world| (
     let hit_record = world.hit(0.001, F64::infinity, ray);
@@ -46,34 +147,19 @@ ray_color = |random, ray, depth, world| (
 
 output_ppm : Random::Random -> IO () = |rand| (
     let aspect_ratio : F64 = 16.0 / 9.0;
-    let image_width = 384;
+    let image_width = 720;
     let image_height = (image_width.to_F64 / aspect_ratio).to_I64;
     let samples_per_pixel : I64 = 100;
     let max_depth : I64 = 50;
     let r = cos(pi / 4.0);
 
-    let world : HittableObject = HittableObject::hittable_list([
-                                    HittableObject::sphere(
-                                        make_sphere(make_vec3(-r, 0.0, -1.0),
-                                        r,
-                                        MaterialObject::lambertian(
-                                            Lambertian { albedo : make_vec3(0.0, 0.0, 1.0) }
-                                        ))
-                                    ),
-                                    HittableObject::sphere(
-                                        make_sphere(make_vec3(r, 0.0, -1.0),
-                                        r,
-                                        MaterialObject::lambertian(
-                                            Lambertian { albedo : make_vec3(1.0, 0.0, 0.0) }
-                                        ))
-                                    )
-                                ]);
+    let (rand, world) = rand.random_scene;
 
-    let lookfrom = make_vec3(3.0, 3.0, 2.0);
-    let lookat = make_vec3(0.0, 0.0, -1.0);
+    let lookfrom = make_vec3(13.0, 2.0, 3.0);
+    let lookat = make_vec3(0.0, 0.0, 0.0);
     let vup = make_vec3(0.0, 1.0, 0.0);
-    let aperture = 2.0;
-    let dist_to_focus = (lookfrom - lookat).length;
+    let aperture = 0.1;
+    let dist_to_focus = 10.0;
 
     let camera : Camera = make_camera(
         lookfrom,
